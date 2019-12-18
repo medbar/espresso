@@ -139,6 +139,7 @@ setup(
         'hydra-core',
         'dataclasses',
         'editdistance',
+        'kaldi_io',
         'numpy',
         'regex',
         'sacrebleu',
