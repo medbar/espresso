@@ -3,6 +3,8 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+from dataclasses import dataclass, field
+from omegaconf import II
 import logging
 import numpy as np
 
@@ -10,11 +12,21 @@ import torch.nn.functional as F
 
 from fairseq import utils
 from fairseq.criterions import register_criterion
-from fairseq.criterions.cross_entropy import CrossEntropyCriterion
+from fairseq.criterions.cross_entropy import CrossEntropyCriterion, CrossEntropyCriterionConfig
 from fairseq.data import data_utils
 
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class CrossEntropyV2CriterionConfig(CrossEntropyCriterionConfig):
+    print_training_sample_interval: int = field(
+        default=500,
+        metadata={
+            "help": "print a training sample (reference + prediction) every this number of updates"
+        },
+    )
 
 
 @register_criterion("cross_entropy_v2")

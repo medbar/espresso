@@ -3,6 +3,8 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+from dataclasses import dataclass, field
+from omegaconf import II
 import logging
 import numpy as np
 
@@ -12,9 +14,36 @@ from fairseq import utils
 from fairseq.criterions import register_criterion
 from fairseq.criterions.label_smoothed_cross_entropy import LabelSmoothedCrossEntropyCriterion
 from fairseq.data import data_utils
+from fairseq.dataclass.data_class import DDP_BACKEND_CHOICES
+from fairseq.dataclass.utils import ChoiceEnum, FairseqDataclass
 
 
 logger = logging.getLogger(__name__)
+
+
+LABEL_SMOOTHING_CHOICES = ChoiceEnum(["uniform", "unigram", "temporal"])
+
+
+@dataclass
+class LabelSmoothedCrossEntropyV2CriterionConfig(FairseqDataclass):
+    sentence_avg: bool = II("params.optimization.sentence_avg")
+    ddp_backend: DDP_BACKEND_CHOICES = II("params.distributed_training.ddp_backend")
+    print_training_sample_interval: int = field(
+        default=500,
+        metadata={
+            "help": "print a training sample (reference + prediction) every this number of updates"
+        },
+    )
+    smoothing_type: LABEL_SMOOTHING_CHOICES = field(
+        default="uniform",
+        metadata={"help": "label smoothing type. Default: uniform"},
+    )
+    unigram_pseudo_count: float = field(
+        default=1.0,
+        metadata={
+            "help": "pseudo count for unigram label smoothing. Only relevant if --smoothing-type=unigram"
+        },
+    )
 
 
 def temporal_label_smoothing_prob_mask(

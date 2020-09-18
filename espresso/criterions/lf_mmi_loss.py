@@ -3,6 +3,8 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+from dataclasses import dataclass, field
+from omegaconf import II
 import logging
 import math
 
@@ -10,10 +12,33 @@ import torch
 
 from fairseq import utils
 from fairseq.criterions import FairseqCriterion, register_criterion
+from fairseq.dataclass.data_class import DDP_BACKEND_CHOICES
+from fairseq.dataclass.utils import ChoiceEnum, FairseqDataclass
 from fairseq.logging import metrics
 
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class LatticeFreeMMICriterionConfig(FairseqDataclass):
+    sentence_avg: bool = II("params.optimization.sentence_avg")
+    ddp_backend: DDP_BACKEND_CHOICES = II("params.distributed_training.ddp_backend")
+    denominator_fst_path: str = field(
+        default=None, metadata={"help": "path to the denominator fst file"}
+    )
+    leaky_hmm_coefficient: float = field(
+        default=1.0e-05,
+        metadata={"help": "leaky-hmm coefficient for the denominator"},
+    )
+    xent_regularization_coefficient: float = field(
+        default=0.0,
+        metadata={"help": "cross-entropy regularization coefficient"},
+    )
+    output_l2_regularization_coefficient: float = field(
+        default=0.0,
+        metadata={"help": "L2 regularization coefficient for the network's output"},
+    )
 
 
 class ChainLossFunction(torch.autograd.Function):

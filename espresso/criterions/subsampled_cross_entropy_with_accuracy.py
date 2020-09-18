@@ -3,17 +3,23 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+from dataclasses import dataclass
 import logging
 
 import torch
 import torch.nn.functional as F
 
 from fairseq.criterions import register_criterion
-from fairseq.criterions.cross_entropy import CrossEntropyCriterion
+from fairseq.criterions.cross_entropy import CrossEntropyCriterion, CrossEntropyCriterionConfig
 from fairseq.logging import metrics
 
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class SubsampledCrossEntropyWithAccuracyCriterionConfig(CrossEntropyCriterionConfig):
+    pass
 
 
 @register_criterion("subsampled_cross_entropy_with_accuracy")
